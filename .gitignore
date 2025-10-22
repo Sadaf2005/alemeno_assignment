@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.env
+*.log
+
+# Django
+db.sqlite3
+*.sqlite3
+
+# Docker (if needed, adjust paths)
+# docker-compose.yml # Usually okay to commit, but depends
+# Dockerfile         # Usually okay to commit, but depends
+
+# Data files (Consider if you want these in git)
+# *.xlsx
+# *.csv
+
+# IDE / OS files
+.idea/
+.vscode/
+*.DS_Store

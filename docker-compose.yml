@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:14
+    container_name: postgres-db
+    environment:
+      - POSTGRES_DB=credit_system_db
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=mysecretpassword
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    container_name: redis-broker
+
+  web:
+    build: .
+    container_name: django-web
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app
+      # Put your excel files in a 'data' folder
+      - ./data:/app/data
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DB_NAME=credit_system_db
+      - DB_USER=admin
+      - DB_PASS=mysecretpassword
+      - DB_HOST=db
+      - CELERY_BROKER=redis://redis:6379/0
+
+  celery:
+    build: .
+    container_name: celery-worker
+    command: celery -A credit_system worker -l info
+    volumes:
+      - .:/app
+    depends_on:
+      - web
+    environment:
+      - DB_NAME=credit_system_db
+      - DB_USER=admin
+      - DB_PASS=mysecretpassword
+      - DB_HOST=db
+      - CELERY_BROKER=redis://redis:6379/0
+
+volumes:
+  postgres_data:
